@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Esportes na Grande Vitória</title>
+<style>
+:root { --bg:#fafaf7; --fg:#1d1d1b; --muted:#6b6b66; --card:#fff; --line:#e4e3dc;
+  --accent:#0b6b4f; --novo:#d97706; --ok:#0b6b4f; --warn:#b45309; --err:#b91c1c; }
+@media (prefers-color-scheme: dark) {
+  :root { --bg:#14150f; --fg:#ecebe4; --muted:#9a9a90; --card:#1c1d16; --line:#2e2f26;
+    --accent:#4ade9d; --novo:#fbbf24; --ok:#4ade9d; --warn:#fbbf24; --err:#f87171; }
+}
+* { box-sizing:border-box; }
+body { margin:0; background:var(--bg); color:var(--fg);
+  font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; }
+main { max-width:760px; margin:0 auto; padding:24px 16px 48px; }
+h1 { font-size:1.5rem; margin:0 0 4px; }
+.sub { color:var(--muted); margin:0 0 20px; font-size:.9rem; }
+h2 { font-size:1.1rem; margin:32px 0 8px; padding-bottom:6px; border-bottom:2px solid var(--accent); }
+h3 { font-size:.95rem; margin:18px 0 6px; color:var(--accent); text-transform:uppercase; letter-spacing:.04em; }
+ul { list-style:none; margin:0; padding:0; }
+li { background:var(--card); border:1px solid var(--line); border-radius:8px;
+  padding:10px 12px; margin-bottom:6px; }
+li a { color:var(--fg); text-decoration:none; font-weight:500; }
+li a:hover { text-decoration:underline; }
+.data { display:block; color:var(--muted); font-size:.8rem; margin-top:2px; }
+.novo { background:var(--novo); color:#000; font-size:.7rem; font-weight:700;
+  padding:1px 6px; border-radius:99px; text-transform:uppercase; vertical-align:middle; }
+.vazio { color:var(--muted); }
+.aviso { background:var(--card); border-left:4px solid var(--novo); padding:8px 12px; border-radius:4px; }
+table { width:100%; border-collapse:collapse; font-size:.85rem; }
+td { padding:6px 4px; border-bottom:1px solid var(--line); vertical-align:top; }
+.pill { font-size:.72rem; font-weight:700; padding:1px 8px; border-radius:99px; border:1px solid currentColor; white-space:nowrap; }
+.pill.ok { color:var(--ok); } .pill.aviso-s { color:var(--warn); } .pill.erro { color:var(--err); }
+details summary { cursor:pointer; font-weight:600; margin:24px 0 8px; }
+a { color:var(--accent); }
+</style>
+</head>
+<body>
+<main>
+<h1>Esportes na Grande Vitória</h1>
+<p class="sub">Atualizado em 16/10/2026 às 18:12 · Matérias das prefeituras</p>
+<p class="aviso">Primeira execução: tudo o que já estava publicado aparece como novo. A partir de amanhã, só o que for realmente novo.</p>
+<h2>Novas (3)</h2>
+<h3>Vitória</h3><ul><li><a href="https://www.vitoria.es.gov.br/noticia/copa-vitoria-das-comunidades-2026-tem-recorde-de-equipes-na-2a-divisao-57550" target="_blank" rel="noopener">Copa Vitória das Comunidades 2026 tem recorde de equipes na 2ª Divisão</a> <span class="novo">novo</span><span class="data">16/10/2026</span></li><li><a href="https://www.vitoria.es.gov.br/noticia/dia-das-criancas-nucleos-de-futebol-society-de-vitoria-promovem-partidas-em-celebracao-a-data-57513" target="_blank" rel="noopener">Dia das Crianças: núcleos de futebol society de Vitória promovem partidas em celebração à data</a> <span class="novo">novo</span><span class="data">09/10/2026</span></li><li><a href="https://www.vitoria.es.gov.br/noticia/vela-capixaba-para-todos-escola-nautica-abre-atividades-do-projeto-com-testes-de-nado-no-tancredao-57451" target="_blank" rel="noopener">Vela Capixaba para Todos: Escola Náutica abre atividades do projeto com testes de nado no Tancredão</a> <span class="novo">novo</span><span class="data">01/10/2026</span></li></ul>
+<details>
+<summary>Dos últimos dias (0)</summary>
+<p class="vazio">Ainda não há histórico.</p>
+</details>
+<h2>Situação de cada site</h2>
+<table><tr><td>Vitória</td><td><span class="pill ok">ok</span></td><td>3 notícias lidas, 3 de esporte</td><td><a href="https://www.vitoria.es.gov.br/imprensa/todas_noticias/semesp" target="_blank" rel="noopener">abrir site</a></td></tr><tr><td>Vila Velha</td><td><span class="pill erro">erro</span></td><td>não consegui verificar o robots.txt (ConnectTimeout)</td><td><a href="https://www.vilavelha.es.gov.br/noticias" target="_blank" rel="noopener">abrir site</a></td></tr><tr><td>Serra</td><td><span class="pill erro">erro</span></td><td>o site respondeu HTTP 500</td><td><a href="https://www.serra.es.gov.br/noticias/" target="_blank" rel="noopener">abrir site</a></td></tr><tr><td>Cariacica</td><td><span class="pill erro">acesso negado</span></td><td>o site bloqueia acesso automático (robots.txt inacessível)</td><td><a href="https://www.cariacica.es.gov.br/noticias" target="_blank" rel="noopener">abrir site</a></td></tr><tr><td>Viana</td><td><span class="pill erro">acesso negado</span></td><td>o site bloqueia acesso automático (robots.txt inacessível)</td><td><a href="https://www.viana.es.gov.br/noticias" target="_blank" rel="noopener">abrir site</a></td></tr><tr><td>Guarapari</td><td><span class="pill erro">acesso negado</span></td><td>o site bloqueia acesso automático (robots.txt inacessível)</td><td><a href="https://www.guarapari.es.gov.br/noticias" target="_blank" rel="noopener">abrir site</a></td></tr><tr><td>Fundão</td><td><span class="pill erro">acesso negado</span></td><td>o site bloqueia acesso automático (robots.txt inacessível)</td><td><a href="https://www.fundao.es.gov.br/noticias" target="_blank" rel="noopener">abrir site</a></td></tr></table>
+<p class="sub" style="margin-top:12px">Sites marcados como "acesso negado" não permitem leitura automática;
+use o link "abrir site" para conferir manualmente.</p>
+</main>
+</body>
+</html>
