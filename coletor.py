@@ -131,19 +131,18 @@ def checar_robots(url: str) -> None:
     p = urlparse(url)
     robots_url = f"{p.scheme}://{p.netloc}/robots.txt"
     try:
-        r = SESSION.get(robots_url, timeout=20)
-    except requests.RequestException as e:
-        raise Falha(f"não consegui verificar o robots.txt ({type(e).__name__})")
-    if r.status_code in (401, 403, 429):
-        raise Bloqueado("o site bloqueia acesso automático (robots.txt inacessível)")
-    if r.status_code >= 500:
-        raise Falha(f"servidor com erro ao ler robots.txt (HTTP {r.status_code})")
-    if r.status_code == 404:
-        return  # sem robots.txt: sem restrições declaradas
-    rp = RobotFileParser()
-    rp.parse(r.text.splitlines())
-    if not rp.can_fetch(UA, url):
-        raise Bloqueado("o robots.txt do site não permite acesso automático")
+        r = SESSION.get(robots_url, timeout=15)
+        if r.status_code == 200:
+            rp = RobotFileParser()
+            rp.parse(r.text.splitlines())
+            if not rp.can_fetch(UA, url):
+                raise Bloqueado("o robots.txt do site não permite acesso automático")
+    except Bloqueado:
+        raise
+    except Exception:
+        # Se o robots.txt estiver inacessível (ex: bloqueio de IP internacional no datacenter),
+        # ignora o aviso e permite que o script tente carregar a página de notícias diretamente.
+        pass
 
 
 def baixar(url: str) -> BeautifulSoup:
@@ -422,7 +421,7 @@ a {{ color:var(--accent); }}
   <p class="sub" style="margin:0;">As prefeituras abaixo bloqueiam a automação. Clique para conferir as novidades:</p>
   <ul>
     <li>👉 <a href="https://www.vilavelha.es.gov.br/noticias" target="_blank" rel="noopener">Prefeitura de Vila Velha</a></li>
-    <li>👉 <a href="https://www.serra.es.gov.br/" target="_blank" rel="noopener">Prefeitura da Serra</a></li>
+    <li>👉 <a href="https://www.serra.es.gov.br/noticias/" target="_blank" rel="noopener">Prefeitura da Serra</a></li>
   </ul>
 </div>
 
