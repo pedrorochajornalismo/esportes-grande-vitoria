@@ -35,23 +35,34 @@ td { padding:6px 4px; border-bottom:1px solid var(--line); vertical-align:top; }
 .pill.ok { color:var(--ok); } .pill.aviso-s { color:var(--warn); } .pill.erro { color:var(--err); }
 details summary { cursor:pointer; font-weight:600; margin:24px 0 8px; }
 a { color:var(--accent); }
+.manual-links { background: var(--card); padding: 12px 16px; border-radius: 8px; border: 1px solid var(--line); margin-bottom: 24px; }
+.manual-links ul { margin-top: 8px; }
+.manual-links li { border: none; padding: 4px 0; margin: 0; background: transparent; }
 </style>
 </head>
 <body>
 <main>
 <h1>Esportes na Grande Vitória</h1>
-<p class="sub">Atualizado em 19/10/2026 às 07:23 · Matérias das prefeituras</p>
+<p class="sub">Atualizado em 19/10/2026 às 15:45 · Matérias das prefeituras</p>
 
 <h2>Novas (0)</h2>
 <p class="vazio">Nenhuma notícia nova de esporte desde a última verificação.</p>
+
+<h2>Acesso Direto (Bloqueio de Robôs)</h2>
+<div class="manual-links">
+  <p class="sub" style="margin:0;">As prefeituras abaixo bloqueiam a automação. Clique para conferir as novidades:</p>
+  <ul>
+    <li>👉 <a href="https://www.vilavelha.es.gov.br/noticias" target="_blank" rel="noopener">Prefeitura de Vila Velha</a></li>
+    <li>👉 <a href="https://www.serra.es.gov.br/" target="_blank" rel="noopener">Prefeitura da Serra</a></li>
+  </ul>
+</div>
+
 <details>
 <summary>Dos últimos dias (3)</summary>
 <h3>Vitória</h3><ul><li><a href="https://www.vitoria.es.gov.br/noticia/copa-vitoria-das-comunidades-2026-tem-recorde-de-equipes-na-2a-divisao-57550" target="_blank" rel="noopener">Copa Vitória das Comunidades 2026 tem recorde de equipes na 2ª Divisão</a> <span class="data">16/10/2026</span></li><li><a href="https://www.vitoria.es.gov.br/noticia/dia-das-criancas-nucleos-de-futebol-society-de-vitoria-promovem-partidas-em-celebracao-a-data-57513" target="_blank" rel="noopener">Dia das Crianças: núcleos de futebol society de Vitória promovem partidas em celebração à data</a> <span class="data">09/10/2026</span></li><li><a href="https://www.vitoria.es.gov.br/noticia/vela-capixaba-para-todos-escola-nautica-abre-atividades-do-projeto-com-testes-de-nado-no-tancredao-57451" target="_blank" rel="noopener">Vela Capixaba para Todos: Escola Náutica abre atividades do projeto com testes de nado no Tancredão</a> <span class="data">01/10/2026</span></li></ul>
 </details>
-<h2>Situação de cada site</h2>
-<table><tr><td>Vitória</td><td><span class="pill ok">ok</span></td><td>3 notícias lidas, 3 de esporte</td><td><a href="https://www.vitoria.es.gov.br/imprensa/todas_noticias/semesp" target="_blank" rel="noopener">abrir site</a></td></tr><tr><td>Vila Velha</td><td><span class="pill erro">erro</span></td><td>não consegui verificar o robots.txt (ConnectTimeout)</td><td><a href="https://www.vilavelha.es.gov.br/noticias" target="_blank" rel="noopener">abrir site</a></td></tr><tr><td>Serra</td><td><span class="pill erro">erro</span></td><td>o site respondeu HTTP 500</td><td><a href="https://www.serra.es.gov.br/noticias/" target="_blank" rel="noopener">abrir site</a></td></tr><tr><td>Cariacica</td><td><span class="pill erro">acesso negado</span></td><td>o site bloqueia acesso automático (robots.txt inacessível)</td><td><a href="https://www.cariacica.es.gov.br/noticias" target="_blank" rel="noopener">abrir site</a></td></tr><tr><td>Viana</td><td><span class="pill erro">acesso negado</span></td><td>o site bloqueia acesso automático (robots.txt inacessível)</td><td><a href="https://www.viana.es.gov.br/noticias" target="_blank" rel="noopener">abrir site</a></td></tr><tr><td>Guarapari</td><td><span class="pill erro">acesso negado</span></td><td>o site bloqueia acesso automático (robots.txt inacessível)</td><td><a href="https://www.guarapari.es.gov.br/noticias" target="_blank" rel="noopener">abrir site</a></td></tr><tr><td>Fundão</td><td><span class="pill erro">acesso negado</span></td><td>o site bloqueia acesso automático (robots.txt inacessível)</td><td><a href="https://www.fundao.es.gov.br/noticias" target="_blank" rel="noopener">abrir site</a></td></tr></table>
-<p class="sub" style="margin-top:12px">Sites marcados como "acesso negado" não permitem leitura automática;
-use o link "abrir site" para conferir manualmente.</p>
+<h2>Situação de cada site Automático</h2>
+<table><tr><td>Vitória</td><td><span class="pill ok">ok</span></td><td>3 notícias lidas, 3 de esporte</td><td><a href="https://www.vitoria.es.gov.br/imprensa/todas_noticias/semesp" target="_blank" rel="noopener">abrir site</a></td></tr><tr><td>Cariacica</td><td><span class="pill erro">acesso negado</span></td><td>o site bloqueia acesso automático (robots.txt inacessível)</td><td><a href="https://cariacica.es.gov.br/noticia" target="_blank" rel="noopener">abrir site</a></td></tr><tr><td>Viana</td><td><span class="pill erro">acesso negado</span></td><td>o site bloqueia acesso automático (robots.txt inacessível)</td><td><a href="https://viana.es.gov.br/noticia" target="_blank" rel="noopener">abrir site</a></td></tr><tr><td>Guarapari</td><td><span class="pill erro">acesso negado</span></td><td>o site bloqueia acesso automático (robots.txt inacessível)</td><td><a href="https://www.guarapari.es.gov.br/noticias" target="_blank" rel="noopener">abrir site</a></td></tr><tr><td>Fundão</td><td><span class="pill erro">acesso negado</span></td><td>o site bloqueia acesso automático (robots.txt inacessível)</td><td><a href="https://www.fundao.es.gov.br/noticias" target="_blank" rel="noopener">abrir site</a></td></tr></table>
 </main>
 </body>
 </html>
