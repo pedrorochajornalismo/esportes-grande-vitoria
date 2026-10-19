@@ -30,22 +30,30 @@ DOCS_DIR = BASE / "docs"
 ARQ_ITENS = DATA_DIR / "itens.json"
 ARQ_HTML = DOCS_DIR / "index.html"
 
-UA = "NoticiasEsporteGV/1.0 (leitura pessoal de noticias publicas)"
+# User-Agent atualizado para simular um navegador real
+UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.0.0 Safari/537.36 NoticiasEsporteGV/1.0"
 TZ = timezone(timedelta(hours=-3))  # horário de Brasília
 DIAS_GUARDADOS = 45
 PAUSA_ENTRE_SITES = 3  # segundos
+SALVAR_PAGINAS = "--salvar-paginas" in sys.argv
 
+# Cabeçalhos enriquecidos para evitar bloqueios por firewalls
 SESSION = requests.Session()
-SESSION.headers.update({"User-Agent": UA, "Accept-Language": "pt-BR,pt;q=0.9"})
+SESSION.headers.update({
+    "User-Agent": UA,
+    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
+    "Accept-Language": "pt-BR,pt;q=0.9,en-US;q=0.8,en;q=0.7",
+    "Upgrade-Insecure-Requests": "1",
+    "Sec-Fetch-Dest": "document",
+    "Sec-Fetch-Mode": "navigate",
+    "Sec-Fetch-Site": "none",
+    "Sec-Fetch-User": "?1"
+})
 
 # --------------------------------------------------------------------------
 # CONFIGURAÇÃO DAS PREFEITURAS
-#
-# estrategia:
-#   "secretaria"  -> a página já é só da Secretaria de Esportes (sem filtro)
-#   "generico"    -> página de notícias geral; filtra por palavras-chave
-#
-# Para ajustar um site, mude a "url" (página de listagem de notícias).
+# Nota: Vila Velha e Serra foram removidas da automação para ganhar velocidade,
+# pois possuem bloqueios severos. Os links manuais foram adicionados ao HTML.
 # --------------------------------------------------------------------------
 CIDADES = [
     {
@@ -54,13 +62,9 @@ CIDADES = [
         "estrategia": "secretaria",
         "parser": "vitoria",
     },
-    {"nome": "Vila Velha", "url": "https://www.vilavelha.es.gov.br/noticias",
+    {"nome": "Cariacica", "url": "https://cariacica.es.gov.br/noticia",
      "estrategia": "generico", "parser": "generico"},
-    {"nome": "Serra", "url": "https://www.serra.es.gov.br/noticias/",
-     "estrategia": "generico", "parser": "generico"},
-    {"nome": "Cariacica", "url": "https://www.cariacica.es.gov.br/noticias",
-     "estrategia": "generico", "parser": "generico"},
-    {"nome": "Viana", "url": "https://www.viana.es.gov.br/noticias",
+    {"nome": "Viana", "url": "https://viana.es.gov.br/noticia",
      "estrategia": "generico", "parser": "generico"},
     {"nome": "Guarapari", "url": "https://www.guarapari.es.gov.br/noticias",
      "estrategia": "generico", "parser": "generico"},
@@ -70,16 +74,19 @@ CIDADES = [
 
 PALAVRAS_CHAVE = [
     "esporte", "esportes", "esportivo", "esportiva", "semesp", "semel",
-    "lazer", "futebol", "futsal", "society", "campeonato", "torneio",
+    "futebol", "futsal", "society", "campeonato", "torneio",
     "copa ", "atleta", "atletismo", "olimpiada", "jogos escolares",
     "jogos municipais", "volei", "basquete", "handebol", "natacao",
     "hidroginastica", "judo", "karate", "jiu-jitsu", "capoeira", "skate",
     "surf", "bodyboard", "beach tennis", "tenis", "maratona", "corrida",
     "meia maratona", "ciclismo", "paradesporto", "bolsa atleta",
     "escolinha", "nucleo esportivo", "nucleos esportivos", "ginastica",
-    "arena", "ginasio", "quadra", "vela ", "remo", "bocha",
+    "ginasio", "quadra", "vela ", "remo", "bocha",
 ]
 
+PALAVRAS_IGNORADAS = [
+    "obmep", "matematica", "ciencias", "robotica", "conhecimento"
+]
 
 # --------------------------------------------------------------------------
 # Utilidades
@@ -92,6 +99,13 @@ def normalizar(txt: str) -> str:
 
 def eh_esporte(texto: str) -> bool:
     t = " " + normalizar(texto) + " "
+    
+    # Se tiver uma palavra ignorada, descarta imediatamente
+    for kw in PALAVRAS_IGNORADAS:
+        if re.search(r"(?<![a-z])" + re.escape(kw), t):
+            return False
+            
+    # Se não tiver, procura pelas palavras de desporto
     for kw in PALAVRAS_CHAVE:
         if re.search(r"(?<![a-z])" + re.escape(kw), t):
             return True
@@ -142,6 +156,11 @@ def baixar(url: str) -> BeautifulSoup:
         raise Bloqueado(f"o site recusou o acesso (HTTP {r.status_code})")
     if r.status_code >= 400:
         raise Falha(f"o site respondeu HTTP {r.status_code}")
+    if SALVAR_PAGINAS:
+        pasta = DATA_DIR / "paginas"
+        pasta.mkdir(parents=True, exist_ok=True)
+        nome = urlparse(url).netloc.replace("www.", "") + ".html"
+        (pasta / nome).write_bytes(r.content)
     return BeautifulSoup(r.content, "html.parser")
 
 
@@ -164,7 +183,6 @@ def _data_dd_mm(texto: str, hoje: date):
 
 
 def parse_vitoria(soup: BeautifulSoup, url_base: str) -> list[dict]:
-    """Listagem de notícias do portal de Vitória (datas dd/mm antes dos links)."""
     hoje = agora().date()
     itens, vistos = [], set()
     for a in soup.find_all("a", href=re.compile(r"/noticia/")):
@@ -180,14 +198,51 @@ def parse_vitoria(soup: BeautifulSoup, url_base: str) -> list[dict]:
     return itens
 
 
+MESES = {"janeiro": 1, "fevereiro": 2, "marco": 3, "abril": 4, "maio": 5, "junho": 6,
+         "julho": 7, "agosto": 8, "setembro": 9, "outubro": 10, "novembro": 11, "dezembro": 12}
+RE_DATA_NUM = re.compile(r"\b(\d{1,2})/(\d{1,2})/(\d{4})\b")
+RE_DATA_EXT = re.compile(r"\b(\d{1,2})\s+de\s+([A-Za-zçÇ]+)\s+de\s+(\d{4})\b", re.I)
+
+
+def achar_data(texto: str):
+    if not texto:
+        return None
+    candidatos = []
+    m = RE_DATA_NUM.search(texto)
+    if m:
+        candidatos.append((m.start(), int(m.group(3)), int(m.group(2)), int(m.group(1))))
+    m = RE_DATA_EXT.search(texto)
+    if m:
+        mes = MESES.get(normalizar(m.group(2)))
+        if mes:
+            candidatos.append((m.start(), int(m.group(3)), mes, int(m.group(1))))
+    for _, ano, mes, dia in sorted(candidatos):
+        try:
+            return date(ano, mes, dia).isoformat()
+        except ValueError:
+            continue
+    return None
+
+
+def limpar_titulo(a, bruto: str) -> str:
+    el = a.find(re.compile(r"^h[1-6]$")) or a.find(class_=re.compile(r"titulo|title", re.I))
+    texto = el.get_text(" ", strip=True) if el else bruto
+    texto = RE_DATA_NUM.sub("", texto)
+    texto = RE_DATA_EXT.sub("", texto)
+    texto = re.sub(r"\s+", " ", texto).strip(" -–|·")
+    if len(texto) > 130:
+        texto = texto[:130].rsplit(" ", 1)[0].rstrip(" ,;:-") + "…"
+    return texto or bruto[:130]
+
+
 def parse_generico(soup: BeautifulSoup, url_base: str) -> list[dict]:
-    """Parser genérico: links longos que apontam para notícias do mesmo site."""
     host = urlparse(url_base).netloc.removeprefix("www.")
     itens, vistos = [], set()
     for a in soup.find_all("a", href=True):
-        titulo = a.get_text(" ", strip=True)
-        if len(titulo) < 25:
+        bruto = a.get_text(" ", strip=True)
+        if len(bruto) < 25:
             continue
+        titulo = limpar_titulo(a, bruto)
         link = urljoin(url_base, a["href"])
         pu = urlparse(link)
         if pu.netloc.removeprefix("www.") != host:
@@ -197,8 +252,6 @@ def parse_generico(soup: BeautifulSoup, url_base: str) -> list[dict]:
         if link in vistos:
             continue
         vistos.add(link)
-        # contexto: texto do "card" que envolve o link (para achar data e palavras-chave).
-        # Sobe até 3 níveis, mas para antes de englobar outras notícias.
         bloco = a
         for _ in range(3):
             pai = bloco.parent
@@ -211,14 +264,9 @@ def parse_generico(soup: BeautifulSoup, url_base: str) -> list[dict]:
                 break
             bloco = pai
         contexto = bloco.get_text(" ", strip=True)[:400]
-        m = re.search(r"(\d{2})/(\d{2})/(\d{4})", contexto)
-        data = None
-        if m:
-            try:
-                data = date(int(m.group(3)), int(m.group(2)), int(m.group(1))).isoformat()
-            except ValueError:
-                pass
-        itens.append({"titulo": titulo, "url": link, "data": data, "_contexto": contexto})
+        data = achar_data(bruto) or achar_data(contexto)
+        itens.append({"titulo": titulo, "url": link, "data": data,
+                      "_contexto": bruto + " " + contexto})
     return itens
 
 
@@ -269,7 +317,7 @@ def fmt_data(iso):
     return d.strftime("%d/%m/%Y")
 
 
-def _lista(itens: list[dict], hoje_iso: str) -> str:
+def _lista(itens: list[dict], hoje_iso: str, marcar_novo: bool = False) -> str:
     por_cidade: dict[str, list[dict]] = {}
     for i in itens:
         por_cidade.setdefault(i["cidade"], []).append(i)
@@ -278,7 +326,7 @@ def _lista(itens: list[dict], hoje_iso: str) -> str:
     for cidade in sorted(por_cidade, key=lambda c: ordem.index(c) if c in ordem else 99):
         lis = []
         for i in sorted(por_cidade[cidade], key=lambda x: (x.get("data") or "", x["visto_em"]), reverse=True):
-            novo = '<span class="novo">novo</span>' if i["visto_em"] == hoje_iso else ""
+            novo = '<span class="novo">novo</span>' if marcar_novo else ""
             lis.append(
                 f'<li><a href="{html.escape(i["url"])}" target="_blank" rel="noopener">'
                 f'{html.escape(i["titulo"])}</a> {novo}'
@@ -292,19 +340,21 @@ def gerar_html(itens: dict, status_cidades: list[dict], primeira_execucao: bool)
     agora_dt = agora()
     hoje_iso = agora_dt.date().isoformat()
     lista = [{"url": u, **v} for u, v in itens.items()]
-    novos = [i for i in lista if i["visto_em"] == hoje_iso]
-    antigos = [i for i in lista if i["visto_em"] != hoje_iso]
+    limite_novo = (agora_dt.date() - timedelta(days=7)).isoformat()
+    novos = [i for i in lista if i["visto_em"] == hoje_iso
+             and (not i.get("data") or i["data"] >= limite_novo)]
+    antigos = [i for i in lista if i not in novos]
 
     if novos:
-        bloco_novos = _lista(novos, hoje_iso)
+        bloco_novos = _lista(novos, hoje_iso, True)
     else:
         bloco_novos = '<p class="vazio">Nenhuma notícia nova de esporte desde a última verificação.</p>'
     bloco_antigos = _lista(antigos, hoje_iso) if antigos else '<p class="vazio">Ainda não há histórico.</p>'
 
     aviso_primeira = ""
     if primeira_execucao:
-        aviso_primeira = ('<p class="aviso">Primeira execução: tudo o que já estava publicado '
-                          'aparece como novo. A partir de amanhã, só o que for realmente novo.</p>')
+        aviso_primeira = ('<p class="aviso">Primeira execução: o que já estava publicado antes '
+                          'pode aparecer aqui. A partir de amanhã, só o que for realmente novo.</p>')
 
     linhas_status = []
     for s in status_cidades:
@@ -354,6 +404,9 @@ td {{ padding:6px 4px; border-bottom:1px solid var(--line); vertical-align:top; 
 .pill.ok {{ color:var(--ok); }} .pill.aviso-s {{ color:var(--warn); }} .pill.erro {{ color:var(--err); }}
 details summary {{ cursor:pointer; font-weight:600; margin:24px 0 8px; }}
 a {{ color:var(--accent); }}
+.manual-links {{ background: var(--card); padding: 12px 16px; border-radius: 8px; border: 1px solid var(--line); margin-bottom: 24px; }}
+.manual-links ul {{ margin-top: 8px; }}
+.manual-links li {{ border: none; padding: 4px 0; margin: 0; background: transparent; }}
 </style>
 </head>
 <body>
@@ -363,14 +416,22 @@ a {{ color:var(--accent); }}
 {aviso_primeira}
 <h2>Novas ({len(novos)})</h2>
 {bloco_novos}
+
+<h2>Acesso Direto (Bloqueio de Robôs)</h2>
+<div class="manual-links">
+  <p class="sub" style="margin:0;">As prefeituras abaixo bloqueiam a automação. Clique para conferir as novidades:</p>
+  <ul>
+    <li>👉 <a href="https://www.vilavelha.es.gov.br/noticias" target="_blank" rel="noopener">Prefeitura de Vila Velha</a></li>
+    <li>👉 <a href="https://www.serra.es.gov.br/" target="_blank" rel="noopener">Prefeitura da Serra</a></li>
+  </ul>
+</div>
+
 <details>
 <summary>Dos últimos dias ({len(antigos)})</summary>
 {bloco_antigos}
 </details>
-<h2>Situação de cada site</h2>
+<h2>Situação de cada site Automático</h2>
 <table>{''.join(linhas_status)}</table>
-<p class="sub" style="margin-top:12px">Sites marcados como "acesso negado" não permitem leitura automática;
-use o link "abrir site" para conferir manualmente.</p>
 </main>
 </body>
 </html>
@@ -381,6 +442,12 @@ use o link "abrir site" para conferir manualmente.</p>
 # Programa principal
 # --------------------------------------------------------------------------
 def main() -> int:
+    # Evita erro de acentos no console/log do Windows
+    for fluxo in (sys.stdout, sys.stderr):
+        try:
+            fluxo.reconfigure(encoding="utf-8", errors="replace")
+        except Exception:
+            pass
     primeira = not ARQ_ITENS.exists()
     itens = carregar_itens()
     hoje_iso = agora().date().isoformat()
