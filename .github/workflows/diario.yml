@@ -2,8 +2,8 @@ name: Coleta diária de notícias de esporte
 
 on:
   schedule:
-    # 10:00 UTC = 07:00 no horário de Brasília
-    - cron: "0 10 * * *"
+    # 17:00 UTC = 14:00 no horário de Brasília
+    - cron: "0 17 * * *"
   workflow_dispatch:   # permite rodar manualmente pelo botão "Run workflow"
 
 permissions:
